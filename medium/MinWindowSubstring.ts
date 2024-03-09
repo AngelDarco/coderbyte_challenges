@@ -17,54 +17,40 @@ Output: aksfaje
 Input: ["aaffhkksemckelloe", "fhea"]
 Output: affhkkse
 */
-function MinWindowSubstring(strArr: string[]) {
-  const [N, K] = strArr;
-  let result = "";
+interface CharCount {
+  [key: string]: number;
+}
 
-  // Create a frequency map for characters in K
-  const charCount = {
-    [K[0]]: 1,
-    [K[1]]: 1,
-    [K[2]]: 1,
-  };
+export default function MinWindowSubstring(strArr: string[]) {
+  let [N, K] = strArr;
+  let result = "",
+    count = K.length,
+    left = 0,
+    exit = false;
 
-  for (const char of K) {
-    charCount[char] = (charCount[char] || 0) + 1;
-  }
+  // create an index map
+  const charCount: CharCount = {};
 
-  let left = 0;
-  let minLength = Infinity;
-  let count = K.length;
+  // fill the index map
+  for (let i = 0; i < K.length; i++)
+    charCount[K[i]] = (charCount[K[i]] || 0) + 1;
 
-  // Sliding window
   for (let right = 0; right < N.length; right++) {
-    const rightChar = N[right];
+    const rightWord = N[right];
 
-    if (charCount[rightChar] > 0) {
-      count--;
-    }
+    if (charCount[rightWord] > 0) count--;
+    charCount[rightWord]--;
 
-    charCount[rightChar]--;
-
-    // Check if all characters in K are found
     while (count === 0) {
-      if (right - left + 1 < minLength) {
-        minLength = right - left + 1;
-        result = N.substring(left, right + 1);
-      }
-
-      const leftChar = N[left];
-      charCount[leftChar]++;
-
-      if (charCount[leftChar] > 0) {
-        count++;
-      }
-
+      const leftWord = N[left];
+      charCount[leftWord]++;
+      result = N.slice(left, right + 1);
       left++;
+      if (charCount[leftWord] > 0) count++;
+      exit = true;
     }
+    if (exit) return result;
   }
-
-  return result;
 }
 
 // Examples
@@ -72,5 +58,3 @@ console.log(MinWindowSubstring(["aaabaaddae", "aed"])); // Output: dae
 console.log(MinWindowSubstring(["aabdccdbcacd", "aad"])); // Output: aabd
 console.log(MinWindowSubstring(["ahffaksfajeeubsne", "jefaa"])); // Output: aksfaje
 console.log(MinWindowSubstring(["aaffhkksemckelloe", "fhea"])); // Output: affhkkse
-
-console.log("res: ", MinWindowSubstring(["ahffaksfajeeubsne", "jefaa"])); // aksfaje
